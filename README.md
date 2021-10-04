@@ -190,7 +190,7 @@ total : 5
 
 Price : 0.03 eur
 
-Info: x2
+Info: x3
 
 total : 0,06
 
