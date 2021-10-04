@@ -10,114 +10,123 @@ Price : 35 eur
 
 Info: tba
 
-2. Analog pH Senso
+2. Analog pH Sensor
 
 
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/pH%20sensor.png)
+![pH Sensor](https://github.com/tsomilios/Dipl/blob/main/Fwto/pH%20sensor.png)
 
-[ArduinoMega](https://store.arduino.cc/products/gravity-analog-ph-sensor-meter-kit)
+[pH Sensor](https://store.arduino.cc/products/gravity-analog-ph-sensor-meter-kit)
 
 Price : 25 eur
 
 Info: tba
 
 
-3. Analog EC
+3. Analog EC Sensor
 
 
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/EC%20sensor.png)
+![Analog EC Sensor](https://github.com/tsomilios/Dipl/blob/main/Fwto/EC%20sensor.png)
 
-[ArduinoMega](https://store.arduino.cc/products/gravity-analog-electrical-conductivity-sensor-meter-for-arduino)
+[Analog EC Sensor](https://store.arduino.cc/products/gravity-analog-electrical-conductivity-sensor-meter-for-arduino)
 
 Price : 58.86 eur
 
 Info: tba
 
-4. 4
+4. LCD
 
 
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
+![lcd](https://github.com/tsomilios/Dipl/blob/main/Fwto/LCD.png)
 
-[ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
+[lcd](https://store.arduino.cc/products/grove-oled-display-1-12?queryID=undefined)
 
-Price : 35 eur
-
-Info: tba
-
-5. 5
-
-
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
-
-[ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
-
-Price : 35 eur
+Price : 15 eur
 
 Info: tba
 
-6. 6
+5. Temperature Sensor - Waterproof
 
 
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
+![Temperature Sensor Waterproof](https://github.com/tsomilios/Dipl/blob/main/Fwto/Waterproof%20Temp.png)
 
-[ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
+[Temperature Sensor Waterproof](https://grobotronics.com/ds18b20-el.html?sl=en)
 
-Price : 35 eur
-
-Info: tba
-
-7. 7
-
-
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
-
-[ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
-
-Price : 35 eur
+Price : 3,6 eur
 
 Info: tba
 
-8. 8
+6. Humidity_Temp
 
 
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
+![Humidity_Temp](https://github.com/tsomilios/Dipl/blob/main/Fwto/Humidity_Temp.png)
 
-[ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
+[Humidity_Temp](https://store.arduino.cc/products/grove-temperature-humidity-sensor-pro?queryID=undefined)
 
-Price : 35 eur
-
-Info: tba
-
-9. 9
-
-
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
-
-[ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
-
-Price : 35 eur
+Price : 9.26 eur
 
 Info: tba
 
-10. 10
+7. Light Sensor
 
 
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
+![Light Sensor](https://github.com/tsomilios/Dipl/blob/main/Fwto/Light_sensor.png)
 
-[ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
+[Light Sensor]()
 
-Price : 35 eur
-
-Info: tba
-
-11. 11
-
-
-![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
-
-[ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
-
-Price : 35 eur
+Price :  eur
 
 Info: tba
 
+8. Wifi Module
+
+
+![Wifi Module](https://github.com/tsomilios/Dipl/blob/main/Fwto/ESP-Wifi.png)
+
+[Wifi Module]()
+
+Price :  eur
+
+Info: tba
+
+9. Grow light
+
+
+![Grow_light](https://github.com/tsomilios/Dipl/blob/main/Fwto/Grow_light.png)
+
+[Grow_light]()
+
+Price :  eur
+
+Info: tba
+
+10. Solonoid Valve
+
+
+![Solonoid Valve](https://github.com/tsomilios/Dipl/blob/main/Fwto/Solonoid%20Valve.png)
+
+[Solonoid Valve]()
+
+Price :  eur
+
+Info: tba
+
+11. Water Pump
+
+
+![Water Pump](https://github.com/tsomilios/Dipl/blob/main/Fwto/Water_Pump.png)
+
+[Water Pump]()
+
+Price :  eur
+
+Info: tba
+
+12. Water Sensor
+
+![Water Pump](https://github.com/tsomilios/Dipl/blob/main/Fwto/Water_Sensor.png)
+
+[Water Pump]()
+
+Price :  eur
+
+Info: tba
