@@ -131,7 +131,45 @@ Price : 1 eur
 
 Info: tba
 
+13. [Power Supply 12VDC](https://grobotronics.com/power-supply-12vdc-2a-psu-1602.html)
 
+![Power Supply 12VDC](https://github.com/tsomilios/Dipl/blob/main/Fwto/Power%20Suply%2012v.jpg)
+
+Price : 5,5 eur
+
+Info: tba
+
+14. [Logic Level Converter Bi-Directional](https://grobotronics.com/logic-level-converter-bi-directional.html)
+
+![Logic Level Converter Bi-Directional](https://github.com/tsomilios/Dipl/blob/main/Fwto/Logic%20Level%20Converter%20Bi-Directional.jpg)
+
+Price : 3.7 eur
+
+Info: tba
+
+15. [4.7 Kohm](https://grobotronics.com/resistor-1-2w-carbon-5-4.7kohm.html)
+
+![4.7 Kohm](https://github.com/tsomilios/Dipl/blob/main/Fwto/4.7%20Kohm.jpg)
+
+Price : 0.01 eur
+
+Info: tba
+
+16. [10Kohm](https://grobotronics.com/resistor-1-2w-carbon-5-10kohm.html)
+
+![10Kohm](https://github.com/tsomilios/Dipl/blob/main/Fwto/10Kohm.jpg)
+
+Price : 0.01 eur
+
+Info: tba
+
+17. [Mosfet N-Channel 21A - STP36NF06L](https://grobotronics.com/mosfet-n-channel-60v-21a-stp36nf06l.html)
+
+![Mosfet N-Channel 21A - STP36NF06L](https://github.com/tsomilios/Dipl/blob/main/Fwto/Mosfet%20N-Channel%2021A%20-%20STP36NF06L.jpg)
+
+Price : 1 eur
+
+Info: tba
 
 
 ![Final](https://github.com/tsomilios/Dipl/blob/main/Fwto/unknown.png)
