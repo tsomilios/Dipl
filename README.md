@@ -171,5 +171,13 @@ Price : 1 eur
 
 Info: tba
 
+18. [Diode Rectifier - 1A 50V](https://grobotronics.com/diode-rectifier-1a-50v-1n4001.html)
+
+![Diode Rectifier - 1A 50V](https://github.com/tsomilios/Dipl/blob/main/Fwto/Diode%20Rectifier%20-%201A%2050V.jpg)
+
+Price : 0.03 eur
+
+Info: tba
+
 
 ![Final](https://github.com/tsomilios/Dipl/blob/main/Fwto/unknown.png)
