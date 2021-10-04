@@ -191,5 +191,5 @@ Info: x2
 
 total : 0,06
 
-
+![Finall](https://www.circuito.io/app?components=9088,9088,9088,9442,10167,10168,10456,10456,10456,11050,11050,11050,11061,12022,13678,752394,987654)
 ![Final](https://github.com/tsomilios/Dipl/blob/main/Fwto/unknown.png)
