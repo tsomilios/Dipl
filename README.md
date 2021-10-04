@@ -71,9 +71,9 @@ Info: tba
 
 ![Light Sensor](https://github.com/tsomilios/Dipl/blob/main/Fwto/Light_sensor.png)
 
-[Light Sensor]()
+[Light Sensor](https://grobotronics.com/photo-resistor-ldr-5mm.html)
 
-Price :  eur
+Price : 0.2 eur
 
 Info: tba
 
@@ -82,9 +82,9 @@ Info: tba
 
 ![Wifi Module](https://github.com/tsomilios/Dipl/blob/main/Fwto/ESP-Wifi.png)
 
-[Wifi Module]()
+[Wifi Module](https://grobotronics.com/esp8266-wifi-module.html)
 
-Price :  eur
+Price : 5,8 eur
 
 Info: tba
 
@@ -93,9 +93,9 @@ Info: tba
 
 ![Grow_light](https://github.com/tsomilios/Dipl/blob/main/Fwto/Grow_light.png)
 
-[Grow_light]()
+[Grow_light](https://www.profitstore.gr/products/led-anaptuksis-futon/autokolliti-tainia-led-3m-usb-anaptuksis-kalliergeias-futon-full-spectrum-fotistiko-thermokipiou-esoterikou-xorou-plant-grow-light-strip/785-50784)
 
-Price :  eur
+Price : 15 eur
 
 Info: tba
 
@@ -104,9 +104,9 @@ Info: tba
 
 ![Solonoid Valve](https://github.com/tsomilios/Dipl/blob/main/Fwto/Solonoid%20Valve.png)
 
-[Solonoid Valve]()
+[Solonoid Valve](https://grobotronics.com/12v-3-4.html)
 
-Price :  eur
+Price : 11.5 eur
 
 Info: tba
 
@@ -115,18 +115,18 @@ Info: tba
 
 ![Water Pump](https://github.com/tsomilios/Dipl/blob/main/Fwto/Water_Pump.png)
 
-[Water Pump]()
+[Water Pump](https://grobotronics.com/mini-brushless-water-pump-12v-dc-240l-h-ad20p-1230a.html)
 
-Price :  eur
+Price : 8,9 eur
 
 Info: tba
 
 12. Water Sensor
 
-![Water Pump](https://github.com/tsomilios/Dipl/blob/main/Fwto/Water_Sensor.png)
+![Water Sensor](https://github.com/tsomilios/Dipl/blob/main/Fwto/Water_Sensor.png)
 
-[Water Pump]()
+[Water Sensor](https://www.e-wireless.gr/water-level-sensor-depth-detection-sensor-for-arduino/)
 
-Price :  eur
+Price : 1 eur
 
 Info: tba
