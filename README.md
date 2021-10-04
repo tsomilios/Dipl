@@ -1,5 +1,8 @@
 # Components
 
+Full schematic here: 
+[Schematic](https://www.circuito.io/app?components=9088,9088,9088,9442,10167,10168,10456,10456,10456,11050,11050,11050,11061,12022,13678,752394,987654)
+
 1. [ArduinoMega](https://store.arduino.cc/products/arduino-mega-2560-rev3)
 
 ![ArduinoMega](https://github.com/tsomilios/Dipl/blob/main/Fwto/Arduino%20Mega%202560%20R3.png)
