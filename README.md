@@ -75,7 +75,9 @@ Info: tba
 
 Price : 0.2 eur
 
-Info: tba
+Info: x3 
+
+total : 0.6
 
 8. [Wifi Module](https://grobotronics.com/esp8266-wifi-module.html)
 
@@ -108,7 +110,9 @@ Info: tba
 
 Price : 11.5 eur
 
-Info: tba
+Info: x3
+
+total : 34.5
 
 11. [Water Pump](https://grobotronics.com/mini-brushless-water-pump-12v-dc-240l-h-ad20p-1230a.html)
 
@@ -153,7 +157,9 @@ Info: tba
 
 Price : 0.01 eur
 
-Info: tba
+Info: x3
+
+total : 0,03
 
 16. [10Kohm](https://grobotronics.com/resistor-1-2w-carbon-5-10kohm.html)
 
@@ -161,7 +167,9 @@ Info: tba
 
 Price : 0.01 eur
 
-Info: tba
+Info: x8
+
+total : 0.08
 
 17. [Mosfet N-Channel 21A - STP36NF06L](https://grobotronics.com/mosfet-n-channel-60v-21a-stp36nf06l.html)
 
@@ -169,7 +177,9 @@ Info: tba
 
 Price : 1 eur
 
-Info: tba
+Info: x5
+
+total : 5
 
 18. [Diode Rectifier - 1A 50V](https://grobotronics.com/diode-rectifier-1a-50v-1n4001.html)
 
@@ -177,7 +187,9 @@ Info: tba
 
 Price : 0.03 eur
 
-Info: tba
+Info: x2
+
+total : 0,06
 
 
 ![Final](https://github.com/tsomilios/Dipl/blob/main/Fwto/unknown.png)
