@@ -261,7 +261,7 @@ void loop()
     else if(c == '4'){
         solenoidValve1_1.on(); // 1. turns on
         Serial.println("solonoid 1 open contains ph down");
-        delay(1000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+        delay(36000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
         solenoidValve1_1.off();// 3. turns off
         Serial.println("solonoid 1 close");
     }
@@ -339,28 +339,40 @@ float readEc(){
 }
 void adjustPh (float phValue,float PhMax,float PhMin){
     AlarmPH = 0;  // reset of the pH alarm
-    while (phValue <= PhMin)
-    {
-        AlarmPH = 1 ;
-        solenoidValve3_3.on(); //open the solonoid valve that contains the pH UP sol 
-        Serial.println("solonoid 3 open");
-        delay(1000);       //wait for standar time.may depent on how litre of water we have
-        solenoidValve3_3.off();//close the solonoid valve that contains the pH UP sol 
-        Serial.println("solonoid 3 close");
-        delay(2000);
-        phValue = readPh();
+    //branch if the ph value is greater than 6.5
+    if(phValue >= PhMax){
+        while (phValue >= PhMax)
+        {
+            AlarmPH = 1 ;
+            solenoidValve3_3.on(); //open the solonoid valve that contains the pH UP sol 
+            Serial.println("solonoid 3 open");
+            delay(36000);       //wait for standar time.may depent on how litre of water we have
+            solenoidValve3_3.off();//close the solonoid valve that contains the pH UP sol 
+            Serial.println("solonoid 3 close");
+            digitalWrite(RelayModule4chPins[2],HIGH);
+            Serial.print("now we mix the water");
+            Serial.println();
+            delay(600000);//start the pump for 10min to mix the water
+            digitalWrite(RelayModule4chPins[2],LOW);
+            lcd.clear();
+            phValue = readPh();
+            lcd.setCursor(0, 0);  
+            lcd.print(F("pH:")); lcd.print(phValue);
+        }
     }
-    while (phValue >= PhMax)
-    {
-        AlarmPH = 2 ;
-        solenoidValve1_1.on(); //open the solonoid valve that contains the pH DOWN sol 
-        Serial.println("solonoid 1 open");
-        delay(1000);       //wait for standar time.may depent on how litre of water we have
-        solenoidValve1_1.off();//close the solonoid valve that contains the pH DOWN sol 
-        Serial.println("solonoid 1 close");
-        phValue = readPh();
+    //branch if the ph value is lower than 4
+    if(phValue <= PhMin){
+        while (phValue >= PhMax)
+        {
+            AlarmPH = 2 ;
+            solenoidValve1_1.on(); //open the solonoid valve that contains the pH DOWN sol 
+            Serial.println("solonoid 1 open");
+            delay(1000);       //wait for standar time.may depent on how litre of water we have
+            solenoidValve1_1.off();//close the solonoid valve that contains the pH DOWN sol 
+            Serial.println("solonoid 1 close");
+            phValue = readPh();
+        }
     }
-    
     
     
     
