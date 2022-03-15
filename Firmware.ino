@@ -19,20 +19,10 @@ Comment this out to disable prints and save space
 #include "Pump.h"
 #include <EEPROM.h>
 #include <TimeLib.h>
+#include <SoftwareSerial.h>       //Software Serial library
 
-/*char auth[] = BLYNK_AUTH_TOKEN;
-// Your WiFi credentials.
-// Set password to "" for open networks.
-char ssid[] = "COSMOTE-702277";
-char pass[] = "2381024532";
-// Hardware Serial on Mega, Leonardo, Micro...
-#define EspSerial Serial1 
-// Your ESP8266 baud rate:
-#define ESP8266_BAUD 115200
-ESP8266 wifi(&EspSerial);
-BlynkTimer timer;
-// BLYNK SET UP DONE*/
 
+SoftwareSerial espSerial(24, 22);   //Pin 2 and 3 act as RX and TX. Connect them to TX and RX of ESP8266      
 // Pin Definitions
 #define PH_PIN A1
 #define EC_PIN A2
@@ -55,7 +45,15 @@ BlynkTimer timer;
 #define Rele_3 12//RELE GIA TA FWTA
 #define Rele_4 13//RELE GIA TO PUMP
 
+#define DEBUG true
+String mySSID = "COSMOTE-702277";       // WiFi SSID
+String myPWD = "2381024532"; // WiFi Password
 
+String myAPI = "BB61Y26J07Y1TAP0";   // API Key
+String myHOST = "api.thingspeak.com";
+String myPORT = "80";
+String myFIELD = "field1"; 
+float sendVal;
 
 // object initialization
 DHT dht(DHT_PIN_DATA);
@@ -85,6 +83,7 @@ float EcMin= 1;    // Min value for EC
 float WaterTempMax= 40;    // Max value for Water Temp
 float WaterTempMin= 5;    // Min value for Water Temp
 long time0;
+float phAverage = 0;
 int timeStampOn = 6;//set the time of led to turned on
 int timeStampOff = 19;//set the time of led to turned off
 int TimeFlag=0;
@@ -95,31 +94,13 @@ int pumpFlagOn=0;
 
 
 
-/* void myTimerEvent()
-{
-    float dhtHumidity = dht.readHumidity(); //read room humidity
-    float dhtTempC = dht.readTempC();   //read room temp
-    float temperature = ds18b20wp.readTempC(); 
-    float phValue = readPh() ; //calculate pH value
-    float ecValue = readEc ();//calculate ec value
-    // You can send any value at any time.
-    // Please don't send more that 10 values per second.
-    Blynk.virtualWrite(V1, dhtHumidity);
-    Blynk.virtualWrite(V2, dhtTempC);
-    Blynk.virtualWrite(V3, phValue);
-    Blynk.virtualWrite(V4, temperature);
-    Blynk.virtualWrite(V5, ecValue);
-    lcdUpdate(dhtHumidity,dhtTempC,phValue,ecValue);//LCD data display refresh
-} */
-//WidgetLED led1(V6);
-// Setup the essentials for your circuit to work. It runs first every time your circuit is powered with electricity.
 void setup() 
 {
     // Setup Serial which is useful for debugging
     // Use the Serial Monitor to view printed messages
     //Serial.begin(9600);
-    Serial.begin(115200); 
-     
+    Serial.begin(9600); 
+    espSerial.begin(115200); 
     while (!Serial) ; // wait for serial port to connect. Needed for native USB
     Serial.println("start");
     ph.begin();
@@ -129,14 +110,9 @@ void setup()
     pinMode(Rele_2,OUTPUT);
     pinMode(Rele_3,OUTPUT);
     pinMode(Rele_4,OUTPUT);
-      // Set ESP8266 baud rate
-    //EspSerial.begin(ESP8266_BAUD);
-    //delay(10);
-    //pinMode(8,OUTPUT);
-    //Blynk.begin(auth, wifi, ssid, pass);
-    // You can also specify server:
-    //Blynk.begin(auth, wifi, ssid, pass, "blynk.cloud", 80);
-    //Blynk.begin(auth, wifi, ssid, pass, IPAddress(192,168,1,100), 8080);
+    espData("AT+RST", 1000, DEBUG);                      //Reset the ESP8266 module
+    espData("AT+CWMODE=1", 1000, DEBUG);                 //Set the ESP mode as station mode
+    espData("AT+CWJAP=\""+ mySSID +"\",\""+ myPWD +"\"", 1000, DEBUG);   //Connect to WiFi network
     if (! rtcPCF.begin()) {
         Serial.println("Couldn't find RTC");
         while (1);
@@ -185,6 +161,7 @@ void loop()
         Serial.print("the pump is on for the next 30 min ");
         Serial.println();
         pumpFlagOn = 1;
+        delay(1000);
         lcd.clear();
     }
     /////////////////////////////////////////
@@ -195,6 +172,7 @@ void loop()
         Serial.print("the pump is off for the net 30 min ");
         Serial.println();
         pumpFlagOn = 0;
+        delay(1000);
         lcd.clear();
     }
     //////////////////////////////////////////
@@ -223,15 +201,42 @@ void loop()
     float dhtTempC = dht.readTempC();   //read room temp
     phValue = readPh() ; //calculate pH value
     ecValue = readEc ();//calculate ec value
+    Serial.println(phValue);
     lcdUpdate(dhtHumidity,dhtTempC,phValue,ecValue);//LCD data display refresh
 
     ////////////////////////////////
     //Code to adjust the pH values//
     ////////////////////////////////
-    if((phValue>PhMax || phValue < PhMin) && pumpFlagOn == 0){
-        adjustPh(phValue,PhMax,PhMin);
+    if(pumpFlagOn==0){
+        delay(600000);//wait 1 min for water to calm
+        for (int i= 0 ;i <=6;i++ ){
+            phAverage+=readPh();
+            Serial.println(phAverage);
+            delay(1500);
+        }
+        phAverage=phAverage/7;
+        Serial.println(phAverage);
 
+        if(phAverage>=PhMax || phAverage <= PhMin){
+            adjustPh(phAverage,PhMax,PhMin);
+
+        }
     }
+
+    sendVal = phValue; // Send a random number between 1 and 1000
+    String sendData = "GET /update?api_key="+ myAPI +"&"+ myFIELD +"="+String(sendVal);
+    espData("AT+CIPMUX=1", 1000, DEBUG);       //Allow multiple connections
+    espData("AT+CIPSTART=0,\"TCP\",\""+ myHOST +"\","+ myPORT, 1000, DEBUG);
+    espData("AT+CIPSEND=0," +String(sendData.length()+4),1000,DEBUG);  
+    espSerial.find(">"); 
+    espSerial.println(sendData);
+    Serial.print("Value to be sent: ");
+    Serial.println(sendVal);
+     
+    espData("AT+CIPCLOSE=0",1000,DEBUG);
+    delay(10000);
+
+
 
 
     // testing code
@@ -339,9 +344,11 @@ float readEc(){
 }
 void adjustPh (float phValue,float PhMax,float PhMin){
     AlarmPH = 0;  // reset of the pH alarm
+    float average;
+    average = phValue;
     //branch if the ph value is greater than 6.5
-    if(phValue >= PhMax){
-        while (phValue >= PhMax)
+    if(average >= PhMax){
+        while (average >= PhMax)
         {
             AlarmPH = 1 ;
             solenoidValve3_3.on(); //open the solonoid valve that contains the pH UP sol 
@@ -352,12 +359,23 @@ void adjustPh (float phValue,float PhMax,float PhMin){
             digitalWrite(RelayModule4chPins[2],HIGH);
             Serial.print("now we mix the water");
             Serial.println();
-            delay(600000);//start the pump for 10min to mix the water
+            delay(200000);//start the pump for 10min to mix the water
             digitalWrite(RelayModule4chPins[2],LOW);
+            Serial.println("we wait for water to calm");
+            delay(200000);
+            
+            for (int i= 0 ;i <=6;i++ ){
+                average+=readPh();
+                
+                delay(500);
+            }
+            average=average/7;
+            Serial.println(average);
             lcd.clear();
-            phValue = readPh();
             lcd.setCursor(0, 0);  
-            lcd.print(F("pH:")); lcd.print(phValue);
+            lcd.print(F("pH:")); lcd.print(average);
+            Serial.print("Ph value is  ");
+            Serial.print(average);
         }
     }
     //branch if the ph value is lower than 4
@@ -403,6 +421,26 @@ void adjustEc(float ecValue,float EcMax,float EcMin){
     }*/
     
 }
-void ledHundler(){
-   
+String espData(String command, const int timeout, boolean debug)
+{
+  Serial.print("AT Command ==> ");
+  Serial.print(command);
+  Serial.println("     ");
+  
+  String response = "";
+  espSerial.println(command);
+  long int time = millis();
+  while ( (time + timeout) > millis())
+  {
+    while (espSerial.available())
+    {
+      char c = espSerial.read();
+      response += c;
+    }
+  }
+  if (debug)
+  {
+    Serial.print(response);
+  }
+  return response;
 }
