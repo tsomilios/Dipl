@@ -1,9 +1,4 @@
-/* BLYNK SET UP
-#define BLYNK_TEMPLATE_ID "TMPLlLyPj_pi"
-#define BLYNK_DEVICE_NAME "New"
-#define BLYNK_AUTH_TOKEN "G1uWmLDik_O6ZeKJFbqNFXC8n9M7i0mj"
-Comment this out to disable prints and save space 
-#define BLYNK_PRINT Serial*/
+
 #include "Wire.h"
 #include "RTClib.h"
 #include <ESP8266_Lib.h> 
@@ -47,12 +42,12 @@ SoftwareSerial espSerial(24, 22);   //Pin 2 and 3 act as RX and TX. Connect them
 
 #define DEBUG true
 String mySSID = "COSMOTE-702277";       // WiFi SSID
-String myPWD = "2381024532"; // WiFi Password
+String myPWD = ""; // WiFi Password
 
-String myAPI = "BB61Y26J07Y1TAP0";   // API Key
+String myAPI = "";   // API Key
 String myHOST = "api.thingspeak.com";
 String myPORT = "80";
-String myFIELD = "field1"; 
+
 float sendPh;
 float sendEc;
 float sendWaterTemp;
