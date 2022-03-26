@@ -53,7 +53,11 @@ String myAPI = "BB61Y26J07Y1TAP0";   // API Key
 String myHOST = "api.thingspeak.com";
 String myPORT = "80";
 String myFIELD = "field1"; 
-float sendVal;
+float sendPh;
+float sendEc;
+float sendWaterTemp;
+float sendRoomTemp;
+float sendHumid;
 
 // object initialization
 DHT dht(DHT_PIN_DATA);
@@ -76,20 +80,20 @@ int AlarmEC;         // alarm Ec
 unsigned long previousMillis = 0;
 unsigned long currentMillis = millis();
 unsigned long period = 600000;       //define timeout of 10 sec.....1000 = 1 sec \\\ 600.000 = 10 min
-float PhMax= 6.5;       // Max value for pH
-float PhMin= 5.5;       // Min value for pH
+float PhMax= 7;       // Max value for pH
+float PhMin= 4;       // Min value for pH
 float EcMax= 1.4;   // Max value for EC
 float EcMin= 1;    // Min value for EC
 float WaterTempMax= 40;    // Max value for Water Temp
 float WaterTempMin= 5;    // Min value for Water Temp
 long time0;
 float phAverage = 0;
-int timeStampOn = 6;//set the time of led to turned on
-int timeStampOff = 19;//set the time of led to turned off
+int timeStampOn = 6;//set the time of led to turned on in 24h format
+int timeStampOff = 19;//set the time of led to turned off in 24h format
 int TimeFlag=0;
 int ledFlagOn = 0;
-int timeStampPumpOn = 0;//time to activate the pump
-int timeStampPumpOff = 30;//time to deactivate the pump
+int timeStampPumpOn = 0;//time to activate the pump in 24h format
+int timeStampPumpOff = 30;//time to deactivate the pump in 24h format
 int pumpFlagOn=0;
 
 
@@ -98,7 +102,6 @@ void setup()
 {
     // Setup Serial which is useful for debugging
     // Use the Serial Monitor to view printed messages
-    //Serial.begin(9600);
     Serial.begin(9600); 
     espSerial.begin(115200); 
     while (!Serial) ; // wait for serial port to connect. Needed for native USB
@@ -135,7 +138,7 @@ void setup()
 void loop()
 {
     currentMillis = millis();
-    
+    Serial.println(currentMillis);
     DateTime now = rtcPCF.now();
         
     Serial.print(now.day(), DEC);
@@ -162,7 +165,9 @@ void loop()
         Serial.println();
         pumpFlagOn = 1;
         delay(1000);
+        lcd.begin(16,2);
         lcd.clear();
+        lcd.setCursor(0, 0); 
     }
     /////////////////////////////////////////
     //Frop 30 min to 59 min the pump is OFF//
@@ -173,7 +178,9 @@ void loop()
         Serial.println();
         pumpFlagOn = 0;
         delay(1000);
+        lcd.begin(16,2);
         lcd.clear();
+        lcd.setCursor(0, 0); 
     }
     //////////////////////////////////////////
     //Code that operates the Led grow lights//
@@ -196,49 +203,45 @@ void loop()
         ledFlagOn = 0;
         
     }
-    
+    float temperature=ds18b20wp.readTempC();
     float dhtHumidity = dht.readHumidity(); //read room humidity
     float dhtTempC = dht.readTempC();   //read room temp
     phValue = readPh() ; //calculate pH value
     ecValue = readEc ();//calculate ec value
-    Serial.println(phValue);
+    //////////////
+    //LCD update//
+    //////////////
     lcdUpdate(dhtHumidity,dhtTempC,phValue,ecValue);//LCD data display refresh
-
+    /////////////////////
+    //Thingspeak Update//
+    /////////////////////
+    updateThingspeak(phValue,ecValue,temperature,dhtHumidity,dhtTempC,pumpFlagOn,ledFlagOn);
     ////////////////////////////////
     //Code to adjust the pH values//
     ////////////////////////////////
     if(pumpFlagOn==0){
-        delay(600000);//wait 1 min for water to calm
-        for (int i= 0 ;i <=6;i++ ){
-            phAverage+=readPh();
+        if(now.minute() == 40){
+            for (int i= 0 ;i <=6;i++ ){
+                phAverage+=readPh();
+                Serial.println(phAverage);
+                delay(1500);
+            }
+            phAverage=phAverage/7;
             Serial.println(phAverage);
-            delay(1500);
-        }
-        phAverage=phAverage/7;
-        Serial.println(phAverage);
 
-        if(phAverage>=PhMax || phAverage <= PhMin){
-            adjustPh(phAverage,PhMax,PhMin);
+            if(phAverage>=PhMax || phAverage <= PhMin){
+                adjustPh(phAverage,PhMax,PhMin);
 
+            }
         }
     }
 
-    sendVal = phValue; // Send a random number between 1 and 1000
-    String sendData = "GET /update?api_key="+ myAPI +"&"+ myFIELD +"="+String(sendVal);
-    espData("AT+CIPMUX=1", 1000, DEBUG);       //Allow multiple connections
-    espData("AT+CIPSTART=0,\"TCP\",\""+ myHOST +"\","+ myPORT, 1000, DEBUG);
-    espData("AT+CIPSEND=0," +String(sendData.length()+4),1000,DEBUG);  
-    espSerial.find(">"); 
-    espSerial.println(sendData);
-    Serial.print("Value to be sent: ");
-    Serial.println(sendVal);
-     
-    espData("AT+CIPCLOSE=0",1000,DEBUG);
-    delay(10000);
+
+   
 
 
 
-
+    
     // testing code
     char c = Serial.read();
     if(c == '1'){
@@ -251,6 +254,7 @@ void loop()
 
     }
     else if(c == '2'){        
+        float temperature = ds18b20wp.readTempC();
         Serial.print(F("Water Temp: ")); Serial.print(temperature); Serial.println(F(" [C]\t"));
     } 
     else if(c == '3'){
@@ -351,6 +355,12 @@ void adjustPh (float phValue,float PhMax,float PhMin){
         while (average >= PhMax)
         {
             AlarmPH = 1 ;
+            lcd.begin(16,2);
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("pH is above 7.5 "); 
+            lcd.setCursor(1,0);
+            lcd.print ("We will add some acid");
             solenoidValve3_3.on(); //open the solonoid valve that contains the pH UP sol 
             Serial.println("solonoid 3 open");
             delay(36000);       //wait for standar time.may depent on how litre of water we have
@@ -359,6 +369,10 @@ void adjustPh (float phValue,float PhMax,float PhMin){
             digitalWrite(RelayModule4chPins[2],HIGH);
             Serial.print("now we mix the water");
             Serial.println();
+            lcd.begin(16,2);
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Water is mixing for 10min");
             delay(200000);//start the pump for 10min to mix the water
             digitalWrite(RelayModule4chPins[2],LOW);
             Serial.println("we wait for water to calm");
@@ -371,6 +385,7 @@ void adjustPh (float phValue,float PhMax,float PhMin){
             }
             average=average/7;
             Serial.println(average);
+            lcd.begin(16,2);
             lcd.clear();
             lcd.setCursor(0, 0);  
             lcd.print(F("pH:")); lcd.print(average);
@@ -380,17 +395,49 @@ void adjustPh (float phValue,float PhMax,float PhMin){
     }
     //branch if the ph value is lower than 4
     if(phValue <= PhMin){
-        while (phValue >= PhMax)
+        while (phValue <= PhMin)
         {
-            AlarmPH = 2 ;
+            
+            AlarmPH = 1 ;
+            lcd.begin(16,2);
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("pH is below 5.5 "); 
+            lcd.setCursor(1,0);
+            lcd.print ("We will add some base");
             solenoidValve1_1.on(); //open the solonoid valve that contains the pH DOWN sol 
             Serial.println("solonoid 1 open");
-            delay(1000);       //wait for standar time.may depent on how litre of water we have
-            solenoidValve1_1.off();//close the solonoid valve that contains the pH DOWN sol 
-            Serial.println("solonoid 1 close");
-            phValue = readPh();
+            delay(36000);       //wait for standar time.may depent on how litre of water we have
+            solenoidValve1_1.off();//close the solonoid valve that contains the pH UP sol 
+            Serial.println("solonoid 3 close");
+            digitalWrite(RelayModule4chPins[2],HIGH);
+            Serial.print("now we mix the water");
+            Serial.println();
+            lcd.begin(16,2);
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Water is mixing for 10min");
+            delay(200000);//start the pump for 10min to mix the water
+            digitalWrite(RelayModule4chPins[2],LOW);
+            Serial.println("we wait for water to calm");
+            delay(200000);
+            
+            for (int i= 0 ;i <=6;i++ ){
+                average+=readPh();
+                
+                delay(500);
+            }
+            average=average/7;
+            Serial.println(average);
+            lcd.begin(16,2);
+            lcd.clear();
+            lcd.setCursor(0, 0);  
+            lcd.print(F("pH:")); lcd.print(average);
+            Serial.print("Ph value is  ");
+            Serial.print(average);
         }
     }
+    
     
     
     
@@ -421,6 +468,41 @@ void adjustEc(float ecValue,float EcMax,float EcMin){
     }*/
     
 }
+
+void updateThingspeak(float phValue,float ecValue,float temperature,float dhtHumidity,float dhtTempC,int pumpFlagOn, int ledFlagOn){
+    String myAPI = "BB61Y26J07Y1TAP0";   // API Key
+    String myHOST = "api.thingspeak.com";
+    String myPORT = "80";
+    //Values to be send//
+    String sendData = "GET /update?api_key="+ myAPI +"&"+ "field1" +"="+String(phValue)+
+    "&"+ "field2" +"="+String(ecValue)+"&"+ "field3" +"="+String(temperature)+
+    "&"+ "field4" +"="+String(dhtHumidity)+"&"+ "field5" +"="+String(dhtTempC)+
+    "&"+ "field6" +"="+String(pumpFlagOn)+"&"+ "field7" +"="+String(ledFlagOn);
+    //..................//
+    espData("AT+CIPMUX=1", 1000, DEBUG);       //Allow multiple connections
+    espData("AT+CIPSTART=0,\"TCP\",\""+ myHOST +"\","+ myPORT, 1000, DEBUG);
+    espData("AT+CIPSEND=0," +String(sendData.length()+4),1000,DEBUG);  
+    espSerial.find(">"); 
+    espSerial.println(sendData);
+    Serial.print("Value to be sent: pH:");
+    Serial.print(phValue);
+    Serial.print(" Ec: ");
+    Serial.print(ecValue);
+    Serial.print(" Water Temp:");    
+    Serial.print(temperature);
+    Serial.print(" Humidity:");
+    Serial.print(dhtHumidity);
+    Serial.print(" Room Temp:");
+    Serial.print(dhtTempC);
+    Serial.println();
+    espData("AT+CIPCLOSE=0",1000,DEBUG);
+    delay(10000);
+    
+
+    //to add light indecator and pump indecator , maybe and relaey indecator
+}
+
+
 String espData(String command, const int timeout, boolean debug)
 {
   Serial.print("AT Command ==> ");
