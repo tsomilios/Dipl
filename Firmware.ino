@@ -33,8 +33,8 @@ SoftwareSerial espSerial(22, 24);//Pin 24 and 22 act as RX and TX. Connect them 
 #define SOLENOIDVALVE4_4_PIN_COIL1	5//PERISTALTIC PUMP FOR MICRO 2 NUTRITIONS
 #define SOLENOIDVALVE5_5_PIN_COIL1	6//PERISTALTIC PUMP FOR MICRO 3 NUTRITIONS
 #define Rele_1 10//NO USE
-#define Rele_2 11//NO USE
-#define Rele_3 12//RELE PINOUT FOR THE LED
+#define Rele_2 12//RELE PINOUT FOR THE LED
+#define Rele_3 11//
 #define Rele_4 13//RELE PINOUT FOR THE PUMP
 #define DEBUG true
 //Wi-Fi SET UP
@@ -72,14 +72,15 @@ int AlarmEC;         // alarm for Ec levels
 unsigned long previousMillis = 0;
 unsigned long currentMillis = millis();
 unsigned long period = 600000;       //define timeout of 10 min.....1000 = 1 sec \\\ 600.000 = 10 min
-float PhMax= 7;       // Max value for pH
-float PhMin= 4;       // Min value for pH
-float EcMax= 1.4;   // Max value for EC
+float PhMax= 6;       // Max value for pH
+float PhMin= 5;       // Min value for pH
+float EcMax= 1.5;   // Max value for EC
 float EcMin= 1;    // Min value for EC
-float WaterTempMax= 40;    // Max value for Water Temp
-float WaterTempMin= 5;    // Min value for Water Temp
+float WaterTempMax= 24;    // Max value for Water Temp
+float WaterTempMin= 18;    // Min value for Water Temp
 long time0;
 float phAverage = 0; //the average value of ph 
+float ecAverage = 0; //the average value of ec
 int timeStampOn = 6;//set the hour that the leds will be turned on in 24h format 
 int timeStampOff = 19;//set the hour that the leds will be turned off in 24h format  
 int TimeFlag=0;
@@ -154,8 +155,9 @@ void loop()
     //Code that operates the pump        //
     //From 0 min to 30 min the pump is ON//
     ///////////////////////////////////////
+   
     if(now.minute()<timeStampPumpOff && pumpFlagOn == 0){
-        digitalWrite(RelayModule4chPins[3],HIGH);
+        digitalWrite(RelayModule4chPins[3],LOW);
         Serial.print("the pump is on for the next 30 min ");
         Serial.println();
         pumpFlagOn = 1;
@@ -164,11 +166,9 @@ void loop()
         lcd.clear();
         lcd.setCursor(0, 0); 
     }
-    /////////////////////////////////////////
-    //From 30 min to 59 min the pump is OFF//
-    /////////////////////////////////////////
+     
     else if(now.minute()>=timeStampPumpOff  && pumpFlagOn == 1){
-        digitalWrite(RelayModule4chPins[3],LOW);
+        digitalWrite(RelayModule4chPins[3],HIGH);
         Serial.print("the pump is off for the net 30 min ");
         Serial.println();
         pumpFlagOn = 0;
@@ -181,28 +181,29 @@ void loop()
     //Code that operates the Led grow lights//
     //From 6:00 to 18:00 the Led are ON     //
     //////////////////////////////////////////
-    if(now.hour()>=timeStampOn && now.hour()<timeStampOff && ledFlagOn == 0){
-        digitalWrite(RelayModule4chPins[1],HIGH);
-        Serial.print("Time is 6:00 ,Led is on ");
-        Serial.println();
+    if(now.hour()>=timeStampOn && now.hour()<timeStampOff){
+        digitalWrite(RelayModule4chPins[1],LOW);
         ledFlagOn = 1;
+        Serial.print("Led is on until 7pm");
+        Serial.println();        
     }
     ///////////////////////////////////////////////////
     //From 18:00 to 6:00 the next day the LED are OFF//
     ///////////////////////////////////////////////////
-    else if((now.hour()>=timeStampOff || now.hour()<timeStampOn) && ledFlagOn == 1 ){
-        
-        digitalWrite(RelayModule4chPins[1],LOW);
-        Serial.print("Time is 19:00 ,Led is off ");
-        Serial.println();
+    //(now.hour()>=timeStampOff || now.hour()<timeStampOn) && ledFlagOn == 1 
+     else if((now.hour()>=timeStampOff || now.hour()<timeStampOn) && ledFlagOn == 1 ){     
+        digitalWrite(RelayModule4chPins[1],HIGH);
         ledFlagOn = 0;
+        Serial.print("Led is off until 6am");
+        Serial.println();
+       
         
     }
     float temperature=ds18b20wp.readTempC();//read water temp
     float dhtHumidity = dht.readHumidity(); //read room humidity sensor
     float dhtTempC = dht.readTempC();   //read room temp sensor
     phValue = readPh() ; //calculate pH value
-    ecValue = readEc ();//calculate ec value
+    ecValue = readEc();//calculate ec value
     ///////////////////////////////////////////////////////
     //function thst operates the LCD data display refresh//
     ///////////////////////////////////////////////////////
@@ -214,7 +215,7 @@ void loop()
     ////////////////////////////////
     //Code to adjust the pH values//
     ////////////////////////////////
-    /*if(pumpFlagOn==0){ //checks if the pump is off,so the measurment are more accurate
+    if(pumpFlagOn==0){ //checks if the pump is off,so the measurment are more accurate
         //checks if 10 minutes have past since the pump went off. 
         //This gives time so the water can settle for more accurate measurment
         if(now.minute() == 40){
@@ -231,11 +232,28 @@ void loop()
                 adjustPh(phAverage,PhMax,PhMin);
             }
         }
-    }*/
+    }
     ////////////////////////////////
     //Code to adjust the Ec values//
     ////////////////////////////////
-
+    if(pumpFlagOn==0){ //checks if the pump is off,so the measurment are more accurate
+        //checks if 10 minutes have past since the pump went off. 
+        //This gives time so the water can settle for more accurate measurment
+        if(now.minute() == 40){
+            for (int i= 0 ;i <=6;i++ ){ //we take the average value of the ph sensor
+                ecAverage+=readEc();    //every 2 seconds
+                Serial.println(ecAverage);
+                delay(2000);
+            }
+            ecAverage=ecAverage/7; //calculates the average value
+            Serial.println(ecAverage);
+            //checks if the average value of ph is on desired levels, if true exits the if
+            if(ecAverage>=EcMax || ecAverage <= EcMin){
+                //if false calls a function to adjust the ph value
+                adjustEc(ecAverage,EcMax,EcMin);
+            }
+        }
+    }
    
 
 
@@ -266,10 +284,10 @@ void loop()
         Serial.print(phValue,2);
         Serial.println(" \t");
     }
-    /*else if(c == '4'){
+    else if(c == '4'){
         solenoidValve1_1.on(); // 1. turns on
         Serial.println("solonoid 1 open contains ph down");
-        delay(36000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+        delay(10000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
         solenoidValve1_1.off();// 3. turns off
         Serial.println("solonoid 1 close");
     }
@@ -283,70 +301,66 @@ void loop()
     else if(c == '6'){
         solenoidValve3_3.on(); // 1. turns on
         Serial.println("solonoid 3 open contains ph up ");
-        delay(1000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+        delay(30000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
         solenoidValve3_3.off();// 3. turns off
         Serial.println("solonoid 3 close");
         
-    }*/
+    }
     else if(c == '7'){
         digitalWrite(RelayModule4chPins[3],HIGH);
-        Serial.print("the pump is on");
+        Serial.print("the pump is off");
         Serial.println();
         
     }
     else if(c == '8'){
         digitalWrite(RelayModule4chPins[3],LOW);
-        Serial.print("the pump is off");
-        Serial.println();
-        
-    }
-    else if(c == '4'){
-        digitalWrite(RelayModule4chPins[1],HIGH);
         Serial.print("the pump is on");
         Serial.println();
         
     }
+    
+    else if(c == '9'){
+        solenoidValve1_1.on(); // 1. turns on
+        Serial.println("solonoid 1 open contains ph up ");
+        delay(10000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+        solenoidValve1_1.off();// 3. turns off
+        Serial.println("solonoid 1 close");
+
+        solenoidValve2_2.on(); // 1. turns on
+        Serial.println("solonoid 2 open contains ph up ");
+        delay(10000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+        solenoidValve2_2.off();// 3. turns off
+        Serial.println("solonoid 2 close");
+
+        solenoidValve3_3.on(); // 1. turns on
+        Serial.println("solonoid 3 open contains ph up ");
+        delay(10000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+        solenoidValve3_3.off();// 3. turns off
+        Serial.println("solonoid 3 close");
+
+        solenoidValve4_4.on(); // 1. turns on
+        Serial.println("solonoid 4 open contains ph up ");
+        delay(10000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+        solenoidValve4_4.off();// 3. turns off
+        Serial.println("solonoid 4 close");
+        
+        solenoidValve5_5.on(); // 1. turns on
+        Serial.println("solonoid 5 open contains ph up ");
+        delay(10000);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+        solenoidValve5_5.off();// 3. turns off
+        Serial.println("solonoid 5 close");
+        
+    }
+    /*
     else if(c == '5'){
         digitalWrite(RelayModule4chPins[1],LOW);
         Serial.print("the pump is off");
         Serial.println();
         
-    }
-    else if (c == '11'){
-        // Adafruit PCF8523 Real Time Clock Assembled Breakout Board - Test Code
-    //This will display the time and date of the RTC. see RTC.h for more functions such as rtcPCF.hour(), rtcPCF.month() etc.
-        DateTime now = rtcPCF.now();
-        
-        Serial.print(now.day(), DEC);
-        Serial.print('/');
-        Serial.print(now.month(), DEC);
-        Serial.print('/');
-        
-        Serial.print(now.year(), DEC);
-        Serial.print("  ");
-        Serial.print(now.hour(), DEC);
-        Serial.print(':');
-        Serial.print(now.minute(), DEC);
-        Serial.print(':');
-        Serial.print(now.second(), DEC);
-        Serial.println();
-        delay(1000);
-    } 
-   else if (c == '6'){
-       for (int i = 0; i < 4; i++) { 
-        digitalWrite(RelayModule4chPins[i],HIGH);
-        Serial.print("Rele ");
-        Serial.print(i);
-        Serial.print(" is ON");
-        Serial.println();
-        delay(10000);
-        digitalWrite(RelayModule4chPins[i],LOW);
-        Serial.print("Rele ");
-        Serial.print(i);
-        Serial.print(" is OFF");
-        Serial.println();
-       }
-   }
+    }*/
+    
+    
+   
     
 }
 //A function that updates the values displayed in the lcd
@@ -385,14 +399,24 @@ void adjustPh (float phValue,float PhMax,float PhMin){
             lcd.begin(16,2);
             lcd.clear();
             lcd.setCursor(0, 0);
-            lcd.print("pH is above 7.5 "); 
+            lcd.print("pH is above 6.5 "); 
             lcd.setCursor(1,0);
             lcd.print ("We will add some acid");
-            solenoidValve2_2.on(); //open the peristaltic pump that contains the pH UP solution 
-            Serial.println("pH up peristaltic pump open");
-            delay(36000); //wait for standar time.may depent on how many lt of water we have
-            solenoidValve2_2.off();//close the peristaltic pump that contains the pH UP sol 
-            Serial.println("pH up peristaltic pump closed");
+            if((average-PhMax)>=1){
+                solenoidValve3_3.on(); //open the peristaltic pump that contains the pH UP solution 
+                Serial.println("pH up peristaltic pump open");
+                delay(30000); //wait for standar time.may depent on how many lt of water we have
+                solenoidValve3_3.off();//close the peristaltic pump that contains the pH UP sol 
+                Serial.println("pH up peristaltic pump closed");
+            }
+            else
+            {
+                solenoidValve3_3.on(); //open the peristaltic pump that contains the pH UP solution 
+                Serial.println("pH up peristaltic pump open");
+                delay(10000); //wait for standar time.may depent on how many lt of water we have
+                solenoidValve3_3.off();//close the peristaltic pump that contains the pH UP sol 
+                Serial.println("pH up peristaltic pump closed");
+            }                                
             digitalWrite(RelayModule4chPins[3],HIGH);//opens the pump so the water can mix
             Serial.print("now we mix the water");
             Serial.println();
@@ -400,10 +424,10 @@ void adjustPh (float phValue,float PhMax,float PhMin){
             lcd.clear();
             lcd.setCursor(0, 0);
             lcd.print("Water is mixing for 10min");
-            delay(200000);//start the pump for 10min to mix the water
+            delay(600000);//start the pump for 10min to mix the water//1m = 60.000 ms
             digitalWrite(RelayModule4chPins[3],LOW);//turns the pump off
             Serial.println("we wait for water to calm");
-            delay(200000);
+            delay(300000);
             //reads and calculate the average ph value so we can check again if we are on desired levels
             for (int i= 0 ;i <=6;i++ ){
                 average+=readPh();                
@@ -431,11 +455,20 @@ void adjustPh (float phValue,float PhMax,float PhMin){
             lcd.print("pH is below 5.5 "); 
             lcd.setCursor(1,0);
             lcd.print ("We will add some base");
-            solenoidValve1_1.on(); //open the peristaltic pump that contains the pH DOWN sol 
-            Serial.println("pH down peristaltic pump open");
-            delay(36000); //wait for standar time.may depent on how many lt of water we have
-            solenoidValve1_1.off();//close the peristaltic pump that contains the pH UP sol 
-            Serial.println("pH up peristaltic pump closed");
+            if((PhMin - average)>=1){
+                solenoidValve4_4.on(); //open the peristaltic pump that contains the pH DOWN sol 
+                Serial.println("pH down peristaltic pump open");
+                delay(30000); //wait for standar time.may depent on how many lt of water we have
+                solenoidValve4_4.off();//close the peristaltic pump that contains the pH UP sol 
+                Serial.println("pH up peristaltic pump closed");
+            }   
+            else{
+                solenoidValve4_4.on(); //open the peristaltic pump that contains the pH DOWN sol 
+                Serial.println("pH down peristaltic pump open");
+                delay(10000); //wait for standar time.may depent on how many lt of water we have
+                solenoidValve4_4.off();//close the peristaltic pump that contains the pH UP sol 
+                Serial.println("pH up peristaltic pump closed");
+            }
             digitalWrite(RelayModule4chPins[3],HIGH);//opens the pump so the water can mix
             Serial.print("now we mix the water");
             Serial.println();
@@ -443,10 +476,10 @@ void adjustPh (float phValue,float PhMax,float PhMin){
             lcd.clear();
             lcd.setCursor(0, 0);
             lcd.print("Water is mixing for 10min");
-            delay(200000);//start the pump for 10min to mix the water
+            delay(600000);//start the pump for 10min to mix the water
             digitalWrite(RelayModule4chPins[3],LOW);//turns the pump off
             Serial.println("we wait for water to calm");
-            delay(200000);
+            delay(300000);
             //reads and calculate the average ph value so we can check again if we are on desired levels
             for (int i= 0 ;i <=6;i++ ){
                 average+=readPh();                
@@ -467,6 +500,7 @@ void adjustPh (float phValue,float PhMax,float PhMin){
     
     
 }
+
 //A function that adjust the EC value of our solution
 void adjustEc(float ecValue,float EcMax,float EcMin){
     AlarmEC = 0;  // reset of the ec alarm
@@ -587,7 +621,7 @@ void updateThingspeak(float phValue,float ecValue,float temperature,float dhtHum
     Serial.print(dhtTempC);
     Serial.println();
     espData("AT+CIPCLOSE=0",1000,DEBUG);//At command closes the TCP connection. It can be configured for slow close or quick close.When there are multi-IP conneciton, a connection number is also required.
-    delay(10000);
+    delay(5000);
     
 
     //to add light indecator and pump indecator , maybe and relaey indecator
@@ -617,4 +651,3 @@ String espData(String command, const int timeout, boolean debug)
   }
   return response;
 }
-
